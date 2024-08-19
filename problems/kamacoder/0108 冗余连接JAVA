@@ -1,0 +1,52 @@
+```Java
+
+import java.util.*;
+
+public class Main{
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        DisJoint disJoint = new DisJoint(n + 1);
+        for (int i = 0; i < n; ++i) {
+            int temp1,temp2;
+            temp1 = scanner.nextInt();
+            temp2 = scanner.nextInt();
+            //两个节点没加入前，已经有同一个父亲，加入后肯定成环不成树，因此可以删除
+            if (disJoint.isSame(temp1, temp2)) {
+                System.out.println(temp1 + " " + temp2);
+                break;
+            }
+            disJoint.join(temp1, temp2);
+        }
+    }
+    
+    //并查集模板
+    static class DisJoint{
+        private int[] father;
+        
+        DisJoint(int n) {
+            father = new int[n];
+            for (int i = 0; i < n; ++i) {
+                father[i] = i;
+            }
+        }
+        
+        int find(int n) {
+            return n == father[n] ? n : (n = find(father[n]));
+        }
+        
+        boolean isSame(int n, int m){
+            n = find(father[n]);
+            m = find(father[m]);
+            return n == m;
+        }
+        
+        void join(int n, int m) {
+            n = find(father[n]);
+            m = find(father[m]);
+            if (n == m)return;
+            father[m] = n;
+        }
+    }
+}
+
