@@ -1,0 +1,94 @@
+```Java
+
+import java.util.*;
+
+public class Main{
+    public static void main(String[] args) {
+        int n;
+        Scanner scanner = new Scanner(System.in);
+        n = scanner.nextInt();
+        int[][] graph = new int[n][2];
+        int[] inDegree = new int [n + 1];
+        Arrays.fill(inDegree, 0);
+        for (int i = 0; i < n; ++i) {
+            graph[i][0] = scanner.nextInt();
+            graph[i][1] = scanner.nextInt();
+            inDegree[graph[i][1]]++;
+        }
+
+
+        //此变量用于判断是否找到可删除的点
+        boolean flag = false;
+
+        //该部分是找到是否有入度为2的点对应的边可删除
+        for (int i = n - 1; i >= 0; --i) {
+            if (inDegree[graph[i][1]] == 2) {
+                if (removeIsTree(graph, i)) {
+                    flag = true;
+                    System.out.println(graph[i][0] + " " + graph[i][1]);
+                    break;
+                }
+            }
+        }
+        
+        //前面没有找到可删除的边，那么就说明图里有环路，找出环路里面能删除的边
+        if (!flag) {
+            findCanDelete(graph);
+        }
+    }
+
+    //去掉一条边后，剩下的边是否形成树
+    static boolean removeIsTree(int[][] graph, int i) {
+        int n = graph.length;
+        DisJoint disJoint = new DisJoint(n + 1);
+        for (int j = 0; j < n; ++j) {
+            if (j == i) continue;
+            if (disJoint.isSame(graph[j][0], graph[j][1])) return false;
+            disJoint.join(graph[j][0], graph[j][1]);
+        }
+        return true;
+    }
+
+    //找出环路最后一条能删除的边
+    static void findCanDelete (int[][] graph) {
+        int n = graph.length;
+        DisJoint disJoint = new DisJoint(n + 1);
+        int ans0 = 0 , ans1 = 0;
+        for (int i = 0; i < n; ++i) {
+            if (disJoint.isSame(graph[i][0], graph[i][1])) {
+                ans0 = graph[i][0];
+                ans1 = graph[i][1];
+            };
+            disJoint.join(graph[i][0], graph[i][1]);
+        }
+        System.out.println(ans0 + " " + ans1);
+    }
+
+    static class DisJoint{
+        private int[] father;
+
+        DisJoint (int n) {
+            father = new int[n];
+            for (int i = 0; i < n; ++i) {
+                father[i] = i;
+            }
+        }
+
+        int find (int u) {
+            return u == father[u] ? u : (father[u] = find(father[u]));
+        }
+
+        boolean isSame (int u , int v) {
+            u = find(u);
+            v = find(v);
+            return u == v;
+        }
+
+        void join (int u, int v) {
+            u = find(u);
+            v = find(v);
+            if (u == v)return;
+            father[v] = u;
+        }
+    }
+}
